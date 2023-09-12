@@ -128,7 +128,7 @@ class LiteSPIClkGen(Module, AutoDoc):
             clk_reg = Signal()
             self.sync += clk_reg.eq(clk)
 
-            if device.startswith("xc7"):
+            if device.startswith("xc7") or device.startswith("xcvu"):
                 cycles = Signal(4)
                 self.specials += Instance("STARTUPE2",
                     i_CLK       = 0,
