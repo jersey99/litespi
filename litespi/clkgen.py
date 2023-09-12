@@ -89,6 +89,8 @@ class LiteSPIClkGen(Module, AutoDoc):
         self.sample     = sample     = Signal()
         self.update     = update     = Signal()
         self.en         = en         = Signal()
+        self.eos        = eos        = Signal()
+        self.cclk_check = cclk_check = Signal()
         cnt             = Signal(cnt_width)
         en_int          = Signal()
         clk             = Signal()
@@ -131,6 +133,8 @@ class LiteSPIClkGen(Module, AutoDoc):
             if device.startswith("xc7") or device.startswith("xcvu"):
                 cycles = Signal(4)
                 self.specials += Instance("STARTUPE2",
+                    o_CFGCLK    = self.cclk_check,
+                    o_EOS       = self.eos,
                     i_CLK       = 0,
                     i_GSR       = 0,
                     i_GTS       = 0,
@@ -144,6 +148,8 @@ class LiteSPIClkGen(Module, AutoDoc):
                 # startupe2 needs 3 usrcclko cycles to switch over to user clock
                 self.comb += en_int.eq(cycles < 3)
                 self.sync += If(en_int & posedge, cycles.eq(cycles+1))
+                self.submodules.spi_out_sample = FreqMeter(150e6)
+                self.comb += self.spi_out_sample.clk.eq(self.cclk_check)
             elif device.startswith("LFE5U"):
                 self.specials += Instance("USRMCLK",
                     i_USRMCLKI  = clk_reg,
