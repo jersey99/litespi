@@ -8,6 +8,7 @@ from migen import *
 
 from litex.soc.cores.freqmeter import FreqMeter
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
+from litex.soc.interconnect.csr import AutoCSR
 
 from litex.build.io import SDROutput, DDROutput
 
