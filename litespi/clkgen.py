@@ -6,6 +6,7 @@
 
 from migen import *
 
+from litex.soc.cores.freqmeter import FreqMeter
 from litex.soc.integration.doc import AutoDoc, ModuleDoc
 
 from litex.build.io import SDROutput, DDROutput
@@ -148,7 +149,7 @@ class LiteSPIClkGen(Module, AutoDoc):
                 # startupe2 needs 3 usrcclko cycles to switch over to user clock
                 self.comb += en_int.eq(cycles < 3)
                 self.sync += If(en_int & posedge, cycles.eq(cycles+1))
-                self.submodules.spi_out_sample = FreqMeter(150e6)
+                self.submodules.spi_out_sample = FreqMeter(int(150e6))
                 self.comb += self.spi_out_sample.clk.eq(self.cclk_check)
             elif device.startswith("LFE5U"):
                 self.specials += Instance("USRMCLK",
