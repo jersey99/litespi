@@ -152,6 +152,8 @@ class LiteSPIClkGen(Module, AutoCSR, AutoDoc):
                 self.sync += If(en_int & posedge, cycles.eq(cycles+1))
                 self.submodules.spi_out_sample = FreqMeter(int(150e6))
                 self.comb += self.spi_out_sample.clk.eq(self.cclk_check)
+                self.submodules.spi_in_sample = FreqMeter(int(150e6))
+                self.comb += self.spi_in_sample.clk.eq(self.clk_reg)
             elif device.startswith("LFE5U"):
                 self.specials += Instance("USRMCLK",
                     i_USRMCLKI  = clk_reg,
