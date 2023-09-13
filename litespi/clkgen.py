@@ -34,7 +34,7 @@ class DDRLiteSPIClkGen(Module, AutoDoc):
         self.specials += DDROutput(i1=en, i2=0, o=pads.clk)
 
 
-class LiteSPIClkGen(Module, AutoDoc):
+class LiteSPIClkGen(Module, AutoCSR, AutoDoc):
     """SPI Clock generator
 
     The ``LiteSPIClkGen`` class provides a generic SPI clock generator.
