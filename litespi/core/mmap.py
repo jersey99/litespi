@@ -7,6 +7,8 @@
 
 from migen import *
 
+from litex.gen import *
+
 from litex.gen.genlib.misc import WaitTimer
 
 from litex.soc.interconnect import wishbone, stream
@@ -29,7 +31,7 @@ addr_oe_mask = {
     8: 0b11111111,
 }
 
-class LiteSPIMMAP(Module, AutoCSR):
+class LiteSPIMMAP(LiteXModule):
     """Memory-mapped SPI Flash controller.
 
     The ``LiteSPIMMAP`` class provides a Wishbone slave that must be connected to a LiteSPI PHY.
@@ -83,8 +85,7 @@ class LiteSPIMMAP(Module, AutoCSR):
         # Burst Control.
         burst_cs      = Signal()
         burst_adr     = Signal(len(bus.adr), reset_less=True)
-        burst_timeout = WaitTimer(MMAP_DEFAULT_TIMEOUT)
-        self.submodules += burst_timeout
+        self.burst_timeout = burst_timeout = WaitTimer(MMAP_DEFAULT_TIMEOUT)
 
         write = Signal()
         write_enabled = Signal()
@@ -93,12 +94,7 @@ class LiteSPIMMAP(Module, AutoCSR):
         cmd_bits  = 8
         data_bits = 32
 
-        if flash.cmd_width == 1:
-            self._default_dummy_bits = flash.dummy_bits if flash.fast_mode else 0
-        elif flash.cmd_width == 4:
-            self._default_dummy_bits = flash.dummy_bits * 3 if flash.fast_mode else 0
-        else:
-            raise NotImplementedError(f'Command width of {flash.cmd_width} bits is currently not supported!')
+        self._default_dummy_bits = flash.dummy_cycles * flash.addr_width if flash.fast_mode else 0
 
         self._spi_dummy_bits = spi_dummy_bits = Signal(8)
 
@@ -128,7 +124,7 @@ class LiteSPIMMAP(Module, AutoCSR):
         self.data_write = Signal(32)
 
         # FSM.
-        self.submodules.fsm = fsm = FSM(reset_state="IDLE")
+        self.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             # Keep CS active after Burst for Timeout.
             burst_timeout.wait.eq(1),
