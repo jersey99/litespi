@@ -70,7 +70,7 @@ class LiteSPIClkGen(LiteXModule):
         self.posedge    = posedge    = Signal()
         self.negedge    = negedge    = Signal()
         self.en         = en         = Signal()
-        self.eos        = eos        = Signal()
+        self.eos         = en         = Signal()
         self.cclk_check = cclk_check = Signal()
         cnt             = Signal(cnt_width)
         en_int          = Signal()
@@ -127,8 +127,6 @@ class LiteSPIClkGen(LiteXModule):
                 # startupe2 needs 3 usrcclko cycles to switch over to user clock
                 self.comb += en_int.eq(cycles < 3)
                 self.sync += If(en_int & posedge, cycles.eq(cycles+1))
-                self.comb += self.spi_out_sample.clk.eq(self.cclk_check)
-                self.comb += self.spi_in_sample.clk.eq(clk_reg)
             elif device.startswith("LFE5U"):
                 self.specials += Instance("USRMCLK",
                     i_USRMCLKI  = clk_reg,
