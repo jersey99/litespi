@@ -146,7 +146,7 @@ Read command (%s) not supported in chip %s!""" % (str(cmd), self.name))
 
         # Check if program command is supported
         if program_cmd not in self.supported_opcodes:
-            raise ValueError("Read command (%s) not supported in chip %s!" % (str(read_cmd), self.name))
+            raise ValueError("Programm command (%s) not supported in chip %s!" % (str(program_cmd), self.name))
 
         # Set commands
         self.read_opcode = default_read_cmd
@@ -154,7 +154,7 @@ Read command (%s) not supported in chip %s!""" % (str(cmd), self.name))
         self.erase_opcode = erase_cmd
 
     def __init__(self, default_read_cmd,
-                 read_cmds=[],
+                 read_cmds=None,
                  program_cmd=SpiNorFlashOpCodes.PP_1_1_1,
                  erase_cmd=SpiNorFlashOpCodes.SE):
         # Check if mandatory attributes are set by an inheritor
@@ -165,13 +165,21 @@ Read command (%s) not supported in chip %s!""" % (str(cmd), self.name))
         assert hasattr(self, 'page_size')
         assert hasattr(self, 'total_pages')
         assert hasattr(self, 'supported_opcodes')
-        assert hasattr(self, 'dummy_bits')
+        assert hasattr(self, 'dummy_bits') or hasattr(self, 'dummy_cycles')
 
+        if read_cmds is None:
+            read_cmds = []
         # Make sure default read command is on the list
         if default_read_cmd not in read_cmds:
             read_cmds.append(default_read_cmd)
 
         self.read_cmds = read_cmds
+
+        if hasattr(self, "dummy_cycles"):
+            if isinstance(self.dummy_cycles, dict):
+                self.dummy_cycles = self.dummy_cycles.get(default_read_cmd, self.dummy_bits if hasattr(self, 'dummy_bits') else 0)
+        else:
+            self.dummy_cycles = self.dummy_bits
 
         # Configure a chip using provided default_read_cmd
         self._configure_chip(default_read_cmd,
