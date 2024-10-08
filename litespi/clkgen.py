@@ -132,7 +132,6 @@ class LiteSPIClkGen(LiteXModule):
                 self.specials += Instance("STARTUPE3",
                     o_CFGCLK    = self.cclk_check,
                     o_EOS       = self.eos,
-                    i_CLK       = 0,
                     i_GSR       = 0,
                     i_GTS       = 0,
                     i_KEYCLEARB = 0,
@@ -140,7 +139,7 @@ class LiteSPIClkGen(LiteXModule):
                     i_USRCCLKO  = clk_reg,
                     i_USRCCLKTS = 0,
                     i_USRDONEO  = 1,
-                    i_USRDONETS = 1,
+                    i_USRDONETS = 0,
                 )
                 # startupe2 needs 3 usrcclko cycles to switch over to user clock
                 self.comb += en_int.eq(cycles < 3)
