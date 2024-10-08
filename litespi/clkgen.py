@@ -106,12 +106,30 @@ class LiteSPIClkGen(LiteXModule):
 
         if not hasattr(pads, "clk"):
             # Clock output needs to be registered like an SDROutput.
-            clk_reg = Signal()
+            self.clk_reg = clk_reg = Signal()
             self.sync += clk_reg.eq(clk)
 
-            if device.startswith("xc7") or device.startswith("xcvu"):
+            if device.startswith("xc7"):
                 cycles = Signal(4)
                 self.specials += Instance("STARTUPE2",
+                    o_CFGCLK    = self.cclk_check,
+                    o_EOS       = self.eos,
+                    i_CLK       = 0,
+                    i_GSR       = 0,
+                    i_GTS       = 0,
+                    i_KEYCLEARB = 0,
+                    i_PACK      = 0,
+                    i_USRCCLKO  = clk_reg,
+                    i_USRCCLKTS = 0,
+                    i_USRDONEO  = 1,
+                    i_USRDONETS = 0,
+                )
+                # startupe2 needs 3 usrcclko cycles to switch over to user clock
+                self.comb += en_int.eq(cycles < 3)
+                self.sync += If(en_int & posedge, cycles.eq(cycles+1))
+            elif device.startswith("xcvu"):
+                cycles = Signal(4)
+                self.specials += Instance("STARTUPE3",
                     o_CFGCLK    = self.cclk_check,
                     o_EOS       = self.eos,
                     i_CLK       = 0,
