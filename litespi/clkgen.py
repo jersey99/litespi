@@ -70,7 +70,7 @@ class LiteSPIClkGen(LiteXModule):
         self.posedge    = posedge    = Signal()
         self.negedge    = negedge    = Signal()
         self.en         = en         = Signal()
-        self.eos         = en         = Signal()
+        self.eos        = eos         = Signal()
         self.cclk_check = cclk_check = Signal()
         cnt             = Signal(cnt_width)
         en_int          = Signal()
