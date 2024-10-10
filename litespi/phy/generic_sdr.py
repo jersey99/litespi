@@ -92,7 +92,8 @@ class LiteSPISDRPHYCore(LiteXModule):
         self.cs_enable = cs_enable = Signal()
         self.comb += cs_timer.wait.eq(self.cs)
         self.comb += cs_enable.eq(cs_timer.done)
-        self.comb += pads.cs_n.eq(~cs_enable)
+        if not device.startswith("xcvu"):
+            self.comb += pads.cs_n.eq(~cs_enable)
 
         # I/Os.
         data_bits = 32
@@ -125,7 +126,7 @@ class LiteSPISDRPHYCore(LiteXModule):
                     )
 
         # Clock Generator.
-        self.clkgen = clkgen = LiteSPIClkGen(pads, device, dq=(dq_o, dq_oe, dq_i))
+        self.clkgen = clkgen = LiteSPIClkGen(pads, device, dq=(dq_o, dq_oe, dq_i, cs_enable))
         self.comb += clkgen.div.eq(spi_clk_divisor)
 
         # Data Shift Registers.

@@ -81,9 +81,10 @@ class LiteSPIClkGen(LiteXModule):
         dq_o  = Signal(len(pads.dq))
         dq_i  = Signal(len(pads.dq))
         dq_oe = Signal(len(pads.dq))
+        cs_enable = Signal()
 
         if dq is not None:
-            dq_o, dq_oe, dq_i = dq
+            dq_o, dq_oe, dq_i, cs_enable = dq
 
         self.comb += [
             posedge.eq(en & ~clk & (cnt == div)),
@@ -150,7 +151,7 @@ class LiteSPIClkGen(LiteXModule):
                     i_USRDONEO  = 1,
                     i_USRDONETS = 0,
                     i_FCSBTS    = 0,
-                    i_FCSBO     = pads.cs_n,
+                    i_FCSBO     = ~cs_enable,
                     i_DTS       = dq_oe,
                     i_DO        = dq_o,
                     o_DI        = dq_i,
