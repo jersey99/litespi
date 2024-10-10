@@ -152,7 +152,7 @@ class LiteSPIClkGen(LiteXModule):
                     i_USRDONETS = 0,
                     i_FCSBTS    = 0,
                     i_FCSBO     = ~cs_enable,
-                    i_DTS       = dq_oe,
+                    i_DTS       = ~dq_oe,
                     i_DO        = dq_o,
                     o_DI        = dq_i,
                 )
