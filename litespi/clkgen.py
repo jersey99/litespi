@@ -51,6 +51,9 @@ class LiteSPIClkGen(LiteXModule):
     cnt_width : int
         Width of the internal counter ``cnt`` used for dividing the clock.
 
+    dq : (dq_o, dq_oe, dq_i)
+        dq signals that are used to get access to SPI via Xilinx STARTUPE3 nonsense
+
     Attributes
     ----------
     div : Signal(8), in
@@ -65,7 +68,7 @@ class LiteSPIClkGen(LiteXModule):
     en : Signal(), in
         Clock enable input, output clock will be generated if set to 1, 0 resets the core.
     """
-    def __init__(self, pads, device, cnt_width=8):
+    def __init__(self, pads, device, cnt_width=8, dq=None):
         self.div        = div        = Signal(cnt_width)
         self.posedge    = posedge    = Signal()
         self.negedge    = negedge    = Signal()
@@ -75,6 +78,12 @@ class LiteSPIClkGen(LiteXModule):
         cnt             = Signal(cnt_width)
         en_int          = Signal()
         clk             = Signal()
+        dq_o  = Signal(len(pads.dq))
+        dq_i  = Signal(len(pads.dq))
+        dq_oe = Signal(len(pads.dq))
+
+        if dq is not None:
+            dq_o, dq_oe, dq_i = dq
 
         self.comb += [
             posedge.eq(en & ~clk & (cnt == div)),
@@ -140,6 +149,11 @@ class LiteSPIClkGen(LiteXModule):
                     i_USRCCLKTS = 0,
                     i_USRDONEO  = 1,
                     i_USRDONETS = 0,
+                    i_FCSBTS    = 0,
+                    i_FCSBO     = pads.cs_n,
+                    i_DTS       = dq_oe,
+                    i_DO        = dq_o,
+                    o_DI        = dq_i,
                 )
                 # startupe2 needs 3 usrcclko cycles to switch over to user clock
                 self.comb += en_int.eq(cycles < 3)
