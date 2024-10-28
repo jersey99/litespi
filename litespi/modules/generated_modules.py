@@ -7269,11 +7269,13 @@ class S25FL512S(SpiNorFlashModule):
 
     supported_opcodes = [
         SpiNorFlashOpCodes.READ_1_1_1,
+        SpiNorFlashOpCodes.READ_1_1_1_4B,
         SpiNorFlashOpCodes.PP_1_1_1,
         SpiNorFlashOpCodes.READ_1_1_1_FAST,
         SpiNorFlashOpCodes.READ_1_1_2,
         SpiNorFlashOpCodes.PP_1_1_2,
         SpiNorFlashOpCodes.READ_1_1_4,
+        SpiNorFlashOpCodes.READ_1_1_4_4B,
         SpiNorFlashOpCodes.PP_1_1_4,
     ]
     dummy_bits = 8
@@ -8804,5 +8806,3 @@ class ZD25D40(SpiNorFlashModule):
         SpiNorFlashOpCodes.PP_1_1_1,
     ]
     dummy_bits = 8
-
-
