@@ -60,7 +60,7 @@ class LiteSPISDRPHYCore(LiteXModule):
     clk_divisor : CSRStorage
         Register which holds a clock divisor value applied to clkgen.
     """
-    def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay):
+    def __init__(self, pads, flash, device, clock_domain, default_divisor, cs_delay, use_startupe_pads=True):
         self.source           = source = stream.Endpoint(spi_phy2core_layout)
         self.sink             = sink   = stream.Endpoint(spi_core2phy_layout)
         self.cs               = Signal()
@@ -92,7 +92,7 @@ class LiteSPISDRPHYCore(LiteXModule):
         self.cs_enable = cs_enable = Signal()
         self.comb += cs_timer.wait.eq(self.cs)
         self.comb += cs_enable.eq(cs_timer.done)
-        if not device.startswith("xcvu"):
+        if not use_startupe_pads:
             self.comb += pads.cs_n.eq(~cs_enable)
 
         # I/Os.
@@ -103,7 +103,7 @@ class LiteSPISDRPHYCore(LiteXModule):
             dq_o  = Signal()
             dq_i  = Signal(2)
             dq_oe = Signal() # Unused.
-            if not device.startswith("xcvu"):
+            if not use_startupe_pads:
                 self.specials += SDROutput(
                     i = dq_o,
                     o = pads.mosi
@@ -116,14 +116,13 @@ class LiteSPISDRPHYCore(LiteXModule):
             dq_o  = Signal(len(pads.dq))
             dq_i  = Signal(len(pads.dq))
             dq_oe = Signal(len(pads.dq))
-            if not device.startswith("xcvu"):
-                for i in range(len(pads.dq)):
-                    self.specials += SDRTristate(
-                        io = pads.dq[i],
-                        o  = dq_o[i],
-                        oe = dq_oe[i],
-                        i  = dq_i[i],
-                    )
+            for i in range(len(pads.dq)):
+                self.specials += SDRTristate(
+                    io = pads.dq[i],
+                    o  = dq_o[i],
+                    oe = dq_oe[i],
+                    i  = dq_i[i],
+                )
 
         # Clock Generator.
         self.clkgen = clkgen = LiteSPIClkGen(pads, device, dq=(dq_o, dq_oe, dq_i, cs_enable))
